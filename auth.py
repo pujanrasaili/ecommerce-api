@@ -1,9 +1,20 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, get_jwt_identity
+from functools import wraps
 from models import db, User
 
 auth_bp = Blueprint('auth', __name__)
+
+def admin_required(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        if not user or user.role != 'admin':
+            return jsonify({'message': 'Admin access required'}), 403
+        return fn(*args, **kwargs)
+    return wrapper
 
 @auth_bp.route('/api/register', methods=['POST'])
 def register():
@@ -22,7 +33,8 @@ def register():
     user = User(
         username=data['username'],
         email=data['email'],
-        password=hashed
+        password=hashed,
+        role=data.get('role', 'customer')
     )
     db.session.add(user)
     db.session.commit()

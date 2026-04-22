@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 from models import db, Product
+from auth import admin_required
 
 products_bp = Blueprint('products', __name__)
 
@@ -8,6 +9,8 @@ products_bp = Blueprint('products', __name__)
 def get_products():
     category = request.args.get('category', '')
     search = request.args.get('search', '')
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
 
     query = Product.query
 
@@ -16,8 +19,14 @@ def get_products():
     if search:
         query = query.filter(Product.name.ilike(f'%{search}%'))
 
-    products = query.all()
-    return jsonify({'products': [p.to_dict() for p in products], 'total': len(products)}), 200
+    paginated = query.paginate(page=page, per_page=per_page, error_out=False)
+
+    return jsonify({
+        'products': [p.to_dict() for p in paginated.items],
+        'total': paginated.total,
+        'pages': paginated.pages,
+        'current_page': page
+    }), 200
 
 
 @products_bp.route('/api/products/<int:id>', methods=['GET'])
@@ -28,6 +37,7 @@ def get_product(id):
 
 @products_bp.route('/api/products', methods=['POST'])
 @jwt_required()
+@admin_required
 def add_product():
     data = request.get_json()
 
@@ -49,6 +59,7 @@ def add_product():
 
 @products_bp.route('/api/products/<int:id>', methods=['PUT'])
 @jwt_required()
+@admin_required
 def update_product(id):
     product = Product.query.get_or_404(id)
     data = request.get_json()
@@ -62,6 +73,7 @@ def update_product(id):
 
 @products_bp.route('/api/products/<int:id>', methods=['DELETE'])
 @jwt_required()
+@admin_required
 def delete_product(id):
     product = Product.query.get_or_404(id)
     db.session.delete(product)
