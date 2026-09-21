@@ -1,27 +1,27 @@
-# 🛒 E-Commerce REST API
+# E-Commerce REST API
 
 A REST API built with Flask, SQLAlchemy, and JWT Authentication.
 
-## 🚀 Features
+## Features
 - User Authentication (Register/Login with JWT)
 - Product Management (CRUD)
 - Shopping Cart
 - Order Management
 
-## 🛠️ Tech Stack
+## Tech Stack
 - Python + Flask
 - SQLAlchemy (SQLite)
 - JWT Authentication
 - Flasgger (Swagger UI)
 
-## ⚙️ Setup
+## Setup
 
 ```bash
 pip install -r requirements.txt
 python app.py
 ```
 
-## �endpoints
+## endpoints
 
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
@@ -38,6 +38,6 @@ python app.py
 | GET | /api/orders | Get orders | Yes |
 
 
-## 👨‍💻 Author
+## Author
 
 **Pujan Rasaili**
